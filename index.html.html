@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>روضة القرآن</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cinzel+Decorative:wght@400;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --teal-deep:   #0b2a2e;
+  --teal-dark:   #0d3338;
+  --teal-mid:    #124a50;
+  --teal-light:  #1a6b72;
+  --gold:        #c9920d;
+  --gold2:       #e8b234;
+  --gold3:       #f5d070;
+  --gold-glow:   rgba(201,146,13,0.35);
+  --cream:       #f5ecd0;
+  --cream2:      #e8d9b0;
+  --text-main:   #f0e6cc;
+  --text-muted:  #a8c4c8;
+  --card-bg:     rgba(12,40,45,0.75);
+  --card-border: rgba(201,146,13,0.25);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Tajawal', sans-serif;
+  background: var(--teal-deep);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ═══════════ STARS CANVAS ═══════════ */
+#stars-canvas {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  z-index: 0; pointer-events: none;
+}
+
+/* ═══════════ GEOMETRIC PATTERN BG ═══════════ */
+.geo-pattern {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(201,146,13,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(26,107,114,0.1) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cg fill='none' stroke='%23c9920d' stroke-width='0.4' opacity='0.15'%3E%3Cpolygon points='50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5'/%3E%3Cpolygon points='50,18 82,34 82,66 50,82 18,66 18,34'/%3E%3Cline x1='50' y1='5' x2='50' y2='18'/%3E%3Cline x1='95' y1='27.5' x2='82' y2='34'/%3E%3Cline x1='95' y1='72.5' x2='82' y2='66'/%3E%3Cline x1='50' y1='95' x2='50' y2='82'/%3E%3Cline x1='5' y1='72.5' x2='18' y2='66'/%3E%3Cline x1='5' y1='27.5' x2='18' y2='34'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: auto, auto, 100px 100px;
+}
+
+/* ═══════════ FLOATING PARTICLES ═══════════ */
+.particle {
+  position: fixed; border-radius: 50%;
+  background: var(--gold3); pointer-events: none;
+  animation: drift linear infinite;
+  z-index: 1;
+}
+@keyframes drift {
+  0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.3; }
+  100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+}
+
+/* ═══════════ LANTERNS ═══════════ */
+.lantern-row {
+  position: relative; z-index: 5;
+  display: flex; justify-content: center; gap: 0;
+  height: 130px; overflow: visible;
+  margin-bottom: -20px;
+}
+
+.lantern-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  animation: swing ease-in-out infinite alternate;
+  transform-origin: top center;
+}
+.lantern-wrap:nth-child(1) { animation-duration: 3.2s; animation-delay: 0s; }
+.lantern-wrap:nth-child(2) { animation-duration: 2.8s; animation-delay: -1s; }
+.lantern-wrap:nth-child(3) { animation-duration: 3.5s; animation-delay: -0.5s; }
+.lantern-wrap:nth-child(4) { animation-duration: 2.6s; animation-delay: -1.8s; }
+.lantern-wrap:nth-child(5) { animation-duration: 3.8s; animation-delay: -0.9s; }
+
+@keyframes swing {
+  from { transform: rotate(-12deg); }
+  to   { transform: rotate(12deg); }
+}
+
+.lantern-string {
+  width: 1px; height: 45px;
+  background: linear-gradient(180deg, rgba(201,146,13,0.6), rgba(201,146,13,0.2));
+}
+
+.lantern-svg { width: 54px; height: 70px; filter: drop-shadow(0 0 14px var(--gold-glow)); }
+
+/* ═══════════ HEADER ═══════════ */
+header {
+  position: relative; z-index: 10;
+  text-align: center;
+  padding: 2rem 1rem 1.5rem;
+}
+
+.sadaqa-text {
+  font-family: 'Amiri', serif;
+  font-size: clamp(0.85rem, 2vw, 1.05rem);
+  color: var(--gold2);
+  letter-spacing: 1px;
+  opacity: 0;
+  animation: fadeInDown 1s ease 0.3s forwards;
+  margin-bottom: 0.6rem;
+}
+
+.brand-name {
+  font-family: 'Amiri', serif;
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  color: var(--gold3);
+  letter-spacing: 6px;
+  opacity: 0;
+  animation: fadeInDown 1s ease 0.5s forwards;
+  text-shadow: 0 0 30px var(--gold-glow);
+  margin-bottom: 0.4rem;
+}
+
+.main-title {
+  font-family: 'Amiri', serif;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  color: var(--gold);
+  line-height: 1.1;
+  text-shadow: 0 0 60px var(--gold-glow), 0 2px 4px rgba(0,0,0,0.5);
+  opacity: 0;
+  animation: fadeInDown 1s ease 0.7s forwards;
+}
+
+.main-title-en {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(0.75rem, 2vw, 1.1rem);
+  color: var(--text-muted);
+  letter-spacing: 5px;
+  opacity: 0;
+  animation: fadeInDown 1s ease 0.9s forwards;
+  margin-top: 0.5rem;
+}
+
+.ornament {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  margin: 1.2rem auto;
+  opacity: 0;
+  animation: fadeIn 1s ease 1.1s forwards;
+}
+.ornament::before, .ornament::after {
+  content: '';
+  height: 1px; width: 100px;
+  background: linear-gradient(90deg, transparent, var(--gold2), transparent);
+}
+.ornament-gem {
+  width: 10px; height: 10px; background: var(--gold2);
+  transform: rotate(45deg);
+  box-shadow: 0 0 10px var(--gold-glow);
+}
+
+.ayah-box {
+  max-width: 700px; margin: 0 auto 1rem;
+  padding: 1rem 2rem;
+  border-top: 1px solid var(--card-border);
+  border-bottom: 1px solid var(--card-border);
+  opacity: 0;
+  animation: fadeIn 1.2s ease 1.3s forwards;
+}
+.ayah-text {
+  font-family: 'Amiri Quran', 'Amiri', serif;
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  color: var(--cream);
+  line-height: 2;
+}
+.ayah-ref {
+  font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem;
+}
+
+/* ═══════════ CONTROLS ═══════════ */
+.controls {
+  position: relative; z-index: 10;
+  display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+  padding: 0 1rem 1.5rem;
+  opacity: 0;
+  animation: fadeInUp 1s ease 1.5s forwards;
+}
+
+.ctrl-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 20px;
+  border-radius: 50px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--gold2);
+  font-family: 'Tajawal', sans-serif;
+  font-size: 14px; font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  transition: all 0.3s;
+}
+.ctrl-btn:hover {
+  background: var(--gold); color: var(--teal-deep);
+  box-shadow: 0 0 20px var(--gold-glow);
+  transform: translateY(-2px);
+}
+.ctrl-btn.active {
+  background: var(--gold); color: var(--teal-deep);
+}
+
+/* ═══════════ CATEGORY FILTER ═══════════ */
+.filter-bar {
+  position: relative; z-index: 10;
+  display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+  max-width: 900px; margin: 0 auto 2.5rem;
+  padding: 0 1rem;
+  opacity: 0;
+  animation: fadeInUp 1s ease 1.7s forwards;
+}
+
+.filter-btn {
+  padding: 7px 18px;
+  border-radius: 50px;
+  border: 1px solid var(--card-border);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'Tajawal', sans-serif;
+  font-size: 13px; font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.filter-btn:hover { color: var(--gold2); border-color: var(--gold2); }
+.filter-btn.active {
+  background: rgba(201,146,13,0.15);
+  color: var(--gold2); border-color: var(--gold2);
+}
+
+/* ═══════════ CARDS GRID ═══════════ */
+main {
+  position: relative; z-index: 10;
+  max-width: 1000px; margin: 0 auto;
+  padding: 0 1rem 4rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 1.8rem 1.6rem;
+  backdrop-filter: blur(16px);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: transform 0.4s, box-shadow 0.4s, border-color 0.4s;
+}
+.card.visible {
+  animation: cardReveal 0.6s ease forwards;
+}
+.card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(201,146,13,0.08) 0%, transparent 60%);
+  opacity: 0; transition: opacity 0.4s;
+}
+.card::after {
+  content: '';
+  position: absolute; top:0; left:0; right:0; height:2px;
+  background: linear-gradient(90deg, transparent, var(--gold2), transparent);
+  opacity: 0; transition: opacity 0.4s;
+}
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 30px rgba(201,146,13,0.12);
+  border-color: rgba(201,146,13,0.5);
+}
+.card:hover::before { opacity: 1; }
+.card:hover::after { opacity: 1; }
+
+@keyframes cardReveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card-icon-wrap {
+  width: 58px; height: 58px;
+  background: rgba(201,146,13,0.1);
+  border: 1px solid rgba(201,146,13,0.25);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1.1rem;
+  transition: all 0.4s;
+}
+.card:hover .card-icon-wrap {
+  background: rgba(201,146,13,0.2);
+  box-shadow: 0 0 20px rgba(201,146,13,0.2);
+  transform: scale(1.08) rotate(3deg);
+}
+.card-icon-wrap svg { width:28px; height:28px; }
+
+.card-cat {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 11px; font-weight: 500;
+  background: rgba(201,146,13,0.12);
+  color: var(--gold2);
+  border: 1px solid rgba(201,146,13,0.25);
+  margin-bottom: 0.7rem;
+}
+
+.card-title-ar {
+  font-family: 'Amiri', serif;
+  font-size: 1.3rem;
+  color: var(--gold);
+  margin-bottom: 0.2rem;
+  line-height: 1.4;
+}
+.card-title-en {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  margin-bottom: 0.8rem;
+  font-weight: 400;
+}
+.card-desc {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.card-link-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: rgba(201,146,13,0.12);
+  border: 1px solid rgba(201,146,13,0.3);
+  color: var(--gold2);
+  font-size: 13px; font-weight: 500;
+  font-family: 'Tajawal', sans-serif;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+.card-link-btn:hover {
+  background: var(--gold); color: var(--teal-deep);
+}
+.card-link-btn svg { width:14px; height:14px; flex-shrink:0; }
+
+/* ═══════════ SECTION DIVIDER ═══════════ */
+.sec-title {
+  text-align: center;
+  font-family: 'Amiri', serif;
+  font-size: 1.6rem;
+  color: var(--gold);
+  display: flex; align-items: center; gap: 16px; justify-content: center;
+  margin: 3rem auto 1.5rem;
+  opacity: 0;
+  animation: fadeIn 1s ease 1.9s forwards;
+}
+.sec-title::before, .sec-title::after {
+  content: '';
+  height: 1px; width: 80px;
+  background: linear-gradient(90deg, transparent, var(--gold2), transparent);
+}
+
+/* ═══════════ DAY / NIGHT TOGGLE ═══════════ */
+body.day-mode {
+  --teal-deep: #e8f4f5;
+  --card-bg: rgba(255,252,240,0.85);
+  --card-border: rgba(180,120,10,0.25);
+  --text-main: #1a3a3e;
+  --text-muted: #3a6a70;
+  --gold: #a06c08;
+  --gold2: #c8860a;
+  --gold3: #d4930d;
+  background: #e4f0f2;
+}
+body.day-mode .geo-pattern { opacity: 0.04; }
+body.day-mode #stars-canvas { opacity: 0; }
+
+/* ═══════════ FOOTER ═══════════ */
+footer {
+  position: relative; z-index: 10;
+  text-align: center;
+  padding: 2rem 1rem;
+  border-top: 1px solid var(--card-border);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+footer .footer-ar {
+  font-family: 'Amiri', serif;
+  font-size: 1rem;
+  color: var(--gold2);
+  margin-bottom: 0.5rem;
+}
+
+/* ═══════════ ANIMATIONS ═══════════ */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-gold {
+  0%,100% { box-shadow: 0 0 0 0 rgba(201,146,13,0); }
+  50% { box-shadow: 0 0 20px 6px rgba(201,146,13,0.25); }
+}
+
+/* ═══════════ SCROLL REVEAL ═══════════ */
+.reveal {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.in-view {
+  opacity: 1; transform: translateY(0);
+}
+
+/* ═══════════ RESPONSIVE ═══════════ */
+@media (max-width: 600px) {
+  .lantern-row { height: 90px; }
+  .lantern-svg { width: 38px; height: 50px; }
+  .lantern-string { height: 30px; }
+  .grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="stars-canvas"></canvas>
+<div class="geo-pattern"></div>
+
+<!-- LANTERNS -->
+<div class="lantern-row" id="lanternRow"></div>
+
+<!-- HEADER -->
+<header>
+  <p class="sadaqa-text">صدقة جارية على روح أمى وجميع أموات المسلمين</p>
+  <div class="brand-name">روضة القرآن</div>
+  <h1 class="main-title">مكتبة القرآن الكريم</h1>
+  <div class="main-title-en">The Holy Quran Library</div>
+
+  <div class="ornament"><div class="ornament-gem"></div></div>
+
+  <div class="ayah-box">
+    <p class="ayah-text">﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾</p>
+    <p class="ayah-ref">— سورة الإسراء: ٩</p>
+  </div>
+</header>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <button class="ctrl-btn" id="modeBtn" onclick="toggleMode()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path id="modeIconPath" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+    <span id="modeLbl">وضع النهار</span>
+  </button>
+  <button class="ctrl-btn" id="langBtn" onclick="toggleLang()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    </svg>
+    <span id="langLbl">English</span>
+  </button>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar" id="filterBar">
+  <button class="filter-btn active" data-cat="all" onclick="filterCards('all')">الكل</button>
+  <button class="filter-btn" data-cat="quran" onclick="filterCards('quran')">القرآن الكريم</button>
+  <button class="filter-btn" data-cat="hifz" onclick="filterCards('hifz')">الحفظ</button>
+  <button class="filter-btn" data-cat="tafsir" onclick="filterCards('tafsir')">التفاسير</button>
+  <button class="filter-btn" data-cat="books" onclick="filterCards('books')">الكتب</button>
+  <button class="filter-btn" data-cat="gift" onclick="filterCards('gift')">الهدايا</button>
+</div>
+
+<!-- SECTION TITLE -->
+<div class="sec-title reveal">✦ الأقسام والمحتوى ✦</div>
+
+<!-- MAIN GRID -->
+<main>
+  <div class="grid" id="cardsGrid"></div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-ar">🌙 روضة القرآن — صدقة جارية على روح أمى وجميع أموات المسلمين 🌙</div>
+  <div>Rawdat Al-Quran — A Perpetual Charity for the Souls of the Deceased</div>
+</footer>
+
+<script>
+/* ════════════════════ DATA ════════════════════ */
+const sections = [
+  {
+    id: 1,
+    cat: 'quran',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#e8b234" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="12" y1="7" x2="16" y2="7"/><line x1="12" y1="11" x2="16" y2="11"/><line x1="8" y1="7" x2="9" y2="7"/></svg>`,
+    titleAr: 'العشر الأوائل من القرآن',
+    titleEn: 'First Ten Parts (Juz)',
+    descAr: 'الأجزاء العشرة الأولى من القرآن الكريم بصيغة PDF عالية الجودة للحفظ والتلاوة',
+    descEn: 'First ten Juz of the Holy Quran in high-quality PDF format',
+    url: 'https://drive.google.com/drive/folders/1M6gEU4giy2lpMuoQADok-unoBRH64Ko8?usp=drive_link',
+    badge: 'أجزاء ١–١٠'
+  },
+  {
+    id: 2,
+    cat: 'quran',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#e8b234" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 12l2 2 4-4"/></svg>`,
+    titleAr: 'العشر الأواسط من القرآن',
+    titleEn: 'Middle Ten Parts (Juz)',
+    descAr: 'الأجزاء العشرة الوسطى من القرآن الكريم بصيغة PDF للحفظ والمراجعة',
+    descEn: 'Middle ten Juz of the Holy Quran in high-quality PDF format',
+    url: 'https://drive.google.com/drive/folders/1c6HDZr5DnelqjX23dETHKTVyQcOHG1Hl?usp=drive_link',
+    badge: 'أجزاء ١١–٢٠'
+  },
+  {
+    id: 3,
+    cat: 'quran',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#e8b234" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><circle cx="12" cy="10" r="2"/><path d="M12 12v4"/></svg>`,
+    titleAr: 'العشر الأواخر من القرآن',
+    titleEn: 'Last Ten Parts (Juz)',
+    descAr: 'الأجزاء العشرة الأخيرة من القرآن الكريم تشمل الجزء المعلق وجزء عم',
+    descEn: 'Last ten Juz including Juz Amma in PDF format',
+    url: 'https://drive.google.com/drive/folders/1yfNr2LNhz4rX0z6PmwcOCU1p-Eu8rAsc?usp=drive_link',
+    badge: 'أجزاء ٢١–٣٠'
+  },
+  {
+    id: 4,
+    cat: 'hifz',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#e8b234" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+    titleAr: 'خطط حفظ القرآن الكريم',
+    titleEn: 'Quran Memorization Plans',
+    descAr: 'خطط منظمة ومتدرجة لحفظ القرآن الكريم تناسب مختلف الأعمار والمستويات',
+    descEn: 'Organized step-by-step plans for memorizing the Holy Quran',
+    url: 'https://drive.google.com/drive/folders/1Pqn6PJ66NkKmw-bt86AVckwLW8xdtSyg?usp=drive_link',
+    badge: 'تحفيظ'
+  },
+  {
+    id: 5,
+    cat: 'tafsir',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#e8b234" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+    titleAr: 'مصاحف مجزأة وتفاسير',
+    titleEn: 'Divided Mushafs & Tafsir',
+    descAr: 'مصاحف مقسمة حسب الأجزاء والأحزاب، مع تفاسير مختارة للاستيعاب والفهم',
+    descEn: 'Mushafs divided by Juz and Hizb with selected Tafsir books',
+    url: 'https://drive.google.com/drive/folders/1Sx5XQ4lb6aGSHb_3ecqeLtk6m-dtGOna?usp=drive_link',
+    badge: 'تفسير'
+  },
+  {
+    id: 6,
+    cat: 'books',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#e8b234" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/></svg>`,
+    titleAr: 'كتب إسلامية هامة وقيمة',
+    titleEn: 'Valuable Islamic Books',
+    descAr: 'مجموعة مختارة من أهم الكتب الإسلامية في العقيدة والفقه والسيرة والتزكية',
+    descEn: 'Curated selection of essential Islamic books on creed, jurisprudence and more',
+    url: 'https://drive.google.com/drive/folders/1lJxZfwhSrIxfpV3vaFd-N8pyU3zxYrFz?usp=drive_link',
+    badge: 'كتب'
+  },
+  {
+    id: 7,
+    cat: 'gift',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#e8b234" stroke-width="1.5"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>`,
+    titleAr: 'هدية روضة القرآن',
+    titleEn: 'Rawdat Al-Quran Gift',
+    descAr: 'هدية قيمة من روضة القرآن — مجموعة مميزة تصلح هدية للأحبة في المناسبات',
+    descEn: 'A special gift collection from Rawdat Al-Quran, perfect for all occasions',
+    url: 'https://drive.google.com/drive/folders/1vM68puxvYugSgRxyo8TnghliCbDHQ8Up?usp=drive_link',
+    badge: 'هدية'
+  }
+];
+
+/* ════════════════════ RENDER CARDS ════════════════════ */
+let currentCat = 'all';
+let isAr = true;
+
+function renderCards(cat) {
+  const grid = document.getElementById('cardsGrid');
+  const filtered = cat === 'all' ? sections : sections.filter(s => s.cat === cat);
+  grid.innerHTML = filtered.map((s, i) => `
+    <a href="${s.url}" target="_blank" rel="noopener" class="card" style="animation-delay:${i*0.1}s">
+      <div class="card-icon-wrap">${s.icon}</div>
+      <span class="card-cat">${s.badge}</span>
+      <div class="card-title-ar">${isAr ? s.titleAr : s.titleEn}</div>
+      <div class="card-title-en">${isAr ? s.titleEn : s.titleAr}</div>
+      <div class="card-desc">${isAr ? s.descAr : s.descEn}</div>
+      <span class="card-link-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+        ${isAr ? 'فتح المجلد' : 'Open Folder'}
+      </span>
+    </a>
+  `).join('');
+
+  // Staggered reveal
+  setTimeout(() => {
+    grid.querySelectorAll('.card').forEach((c, i) => {
+      setTimeout(() => c.classList.add('visible'), i * 100);
+    });
+  }, 50);
+}
+
+function filterCards(cat) {
+  currentCat = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === cat);
+  });
+  renderCards(cat);
+}
+
+/* ════════════════════ LANTERNS ════════════════════ */
+function buildLanterns() {
+  const row = document.getElementById('lanternRow');
+  const count = window.innerWidth < 500 ? 3 : 5;
+  row.innerHTML = Array.from({length: count}, (_, i) => `
+    <div class="lantern-wrap">
+      <div class="lantern-string"></div>
+      <svg class="lantern-svg" viewBox="0 0 54 80" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="lg${i}" cx="40%" cy="35%" r="60%">
+            <stop offset="0%" stop-color="#f5d070" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#a06008" stop-opacity="0.7"/>
+          </radialGradient>
+          <filter id="glow${i}">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Top cap -->
+        <rect x="20" y="2" width="14" height="5" rx="2" fill="#c9920d"/>
+        <line x1="27" y1="7" x2="27" y2="10" stroke="#c9920d" stroke-width="1.5"/>
+        <!-- Top ring -->
+        <ellipse cx="27" cy="12" rx="14" ry="4" fill="#a06008"/>
+        <!-- Body -->
+        <path d="M13 18 Q5 40 13 60 H41 Q49 40 41 18 Z" fill="url(#lg${i})" filter="url(#glow${i})"/>
+        <!-- Ribs -->
+        <path d="M27 18 Q20 40 27 60" fill="none" stroke="#c9920d" stroke-width="0.7" opacity="0.6"/>
+        <path d="M27 18 Q34 40 27 60" fill="none" stroke="#c9920d" stroke-width="0.7" opacity="0.6"/>
+        <path d="M13 38 Q27 32 41 38" fill="none" stroke="#c9920d" stroke-width="0.7" opacity="0.6"/>
+        <!-- Geometric pattern -->
+        <polygon points="27,26 31,32 27,38 23,32" fill="none" stroke="#c9920d" stroke-width="0.8" opacity="0.7"/>
+        <!-- Bottom ring -->
+        <ellipse cx="27" cy="60" rx="14" ry="4" fill="#a06008"/>
+        <!-- Tassel -->
+        <line x1="27" y1="64" x2="27" y2="72" stroke="#c9920d" stroke-width="1.5"/>
+        <circle cx="27" cy="73" r="3" fill="#c9920d"/>
+        <!-- Glow effect -->
+        <ellipse cx="27" cy="40" rx="18" ry="22" fill="#f5d070" opacity="0.08"/>
+      </svg>
+    </div>
+  `).join('');
+}
+
+/* ════════════════════ STARS ════════════════════ */
+function initStars() {
+  const canvas = document.getElementById('stars-canvas');
+  const ctx = canvas.getContext('2d');
+  let W = canvas.width = window.innerWidth;
+  let H = canvas.height = window.innerHeight;
+  const stars = Array.from({length: 150}, () => ({
+    x: Math.random()*W, y: Math.random()*H,
+    r: Math.random()*1.5+0.3,
+    a: Math.random(), da: (Math.random()-0.5)*0.01
+  }));
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    stars.forEach(s => {
+      s.a = Math.max(0.1, Math.min(1, s.a + s.da));
+      if (s.a <= 0.1 || s.a >= 1) s.da *= -1;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(245,224,144,${s.a})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+  window.addEventListener('resize', () => {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  });
+}
+
+/* ════════════════════ PARTICLES ════════════════════ */
+function initParticles() {
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const sz = Math.random()*3+1;
+    p.style.cssText = `
+      width:${sz}px;height:${sz}px;
+      left:${Math.random()*100}%;
+      animation-duration:${8+Math.random()*12}s;
+      animation-delay:${-Math.random()*10}s;
+      opacity:0.4;
+    `;
+    document.body.appendChild(p);
+  }
+}
+
+/* ════════════════════ SCROLL REVEAL ════════════════════ */
+function initScrollReveal() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in-view'); });
+  }, {threshold: 0.1});
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+}
+
+/* ════════════════════ TOGGLE MODE ════════════════════ */
+let isDayMode = false;
+function toggleMode() {
+  isDayMode = !isDayMode;
+  document.body.classList.toggle('day-mode', isDayMode);
+  document.getElementById('modeLbl').textContent = isDayMode ? 'وضع الليل' : 'وضع النهار';
+  const path = document.getElementById('modeIconPath');
+  path.setAttribute('d', isDayMode
+    ? 'M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z'
+    : 'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z');
+}
+
+/* ════════════════════ TOGGLE LANG ════════════════════ */
+function toggleLang() {
+  isAr = !isAr;
+  document.getElementById('langLbl').textContent = isAr ? 'English' : 'عربي';
+  document.documentElement.setAttribute('dir', isAr ? 'rtl' : 'ltr');
+
+  document.querySelector('.sadaqa-text').textContent = isAr
+    ? 'صدقة جارية على روح أمى وجميع أموات المسلمين'
+    : 'A Perpetual Charity for the Soul of My Mother & All Deceased Muslims';
+  document.querySelector('.main-title').textContent = isAr ? 'مكتبة القرآن الكريم' : 'The Holy Quran Library';
+  document.querySelector('.main-title-en').textContent = isAr ? 'The Holy Quran Library' : 'مكتبة القرآن الكريم';
+
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const labels = isAr
+    ? ['الكل','القرآن الكريم','الحفظ','التفاسير','الكتب','الهدايا']
+    : ['All','Quran','Memorization','Tafsir','Books','Gifts'];
+  filterBtns.forEach((b,i) => b.textContent = labels[i] || b.textContent);
+
+  document.querySelector('.sec-title').textContent = isAr ? '✦ الأقسام والمحتوى ✦' : '✦ Sections & Content ✦';
+  renderCards(currentCat);
+}
+
+/* ════════════════════ INIT ════════════════════ */
+buildLanterns();
+initStars();
+initParticles();
+initScrollReveal();
+renderCards('all');
+</script>
+</body>
+</html>
